@@ -1,0 +1,5 @@
+telebot
+pyTelegramBotAPI==4.7.0
+forismatic
+beautifulsoup4==4.11.1
+bs4
