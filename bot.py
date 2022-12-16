@@ -88,10 +88,8 @@ class Keyboards:
 
 	# Main KeyBoard. There we take a conversation with our bot
 	def make_reply_keyboard():
-		reply_keyboard_login = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 		reply_keyboard = telebot.types.ReplyKeyboardMarkup()
 		
-		sign_up = telebot.types.KeyboardButton(text="🆕 Регистрация")
 		help_com = telebot.types.KeyboardButton(text="❓ Помощь")
 		my_commands = telebot.types.KeyboardButton(text="🗒 Мои команды")
 		feature = telebot.types.KeyboardButton(text="🧐 Слово философа")
@@ -100,16 +98,21 @@ class Keyboards:
 		total = telebot.types.KeyboardButton(text="👨‍🎓 Итоговые отметки")
 		schedule = telebot.types.KeyboardButton(text="📝 Расписание")
 
-		reply_keyboard_login.add(sign_up)
 
 		reply_keyboard.add(my_commands)
 		reply_keyboard.row(help_com, schedule)
 		reply_keyboard.row(marks, total)
 		reply_keyboard.row(homework, feature)
 
-		# returning 2 bords: before login and after
-		return reply_keyboard_login, reply_keyboard
+		return reply_keyboard
 
+	def make_start_keyboard():
+		reply_keyboard = telebot.types.ReplyKeyboardMarkup()
+		sign_up = telebot.types.KeyboardButton(text="🆕 Регистрация")
+
+		reply_keyboard.add(sign_up)
+		return reply_keyboard
+		
 	def make_schedule_keyboard():
 
 		# Future board of schedule
@@ -154,7 +157,8 @@ class Keyboards:
 	# create board. Now we have an access to them through class "Keyboards"
 	schedule_keyboard = make_schedule_keyboard()
 	subject_keyboard = make_subjects_keyboard()
-	signup_keyboard, reply_keyboard = make_reply_keyboard()
+	start_keyboard = make_start_keyboard()
+	reply_keyboard = make_reply_keyboard()
 
 
 class Features_funcs:
@@ -220,7 +224,7 @@ class Handlers:
 	def start(message):
 		Features_funcs.first_time = True
 		Features_funcs.sign_up_passed = False
-		bot.send_message(message.chat.id, Messages.start_message, reply_markup=Keyboards.signup_keyboard)
+		bot.send_message(message.chat.id, Messages.start_message, reply_markup=Keyboards.start_keyboard)
 
 	# Bot's buttons
 	@bot.callback_query_handler(func=lambda call: True)
@@ -299,91 +303,91 @@ class Handlers:
 
 		elif message.text == "💡 Физика":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🧮 Алгебра":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "📐 Геометрия":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "💻 Информ.":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🇷🇺 Русск. яз":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "📖 Лит-ра":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🇬🇧 Англ. яз":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🧬 Биология":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "☣️ Химия":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "📽 История":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "👨‍👩‍👦 Общество":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🏐 Физ-ра":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
 
 		elif message.text == "🧱 Проект":
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.signup_keyboard)
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 			else:
 				bot.delete_message(message.chat.id, message.message_id)
 
@@ -436,7 +440,7 @@ class Handlers:
 					# если формат правильный
 					if Features_funcs.login_valid(login):
 						Features_funcs.sign_up_passed = True
-						bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.signup_keyboard)
+						bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.reply_keyboard)
 					else:
 						# если пользователь впервые ввел что-то неправильно
 						# то бот отвечает. Если не впервые, то просто удаляет сообщение и ничего не пишет
