@@ -1,15 +1,47 @@
 import re
+import time
+import sqlite3
 
 import telebot
 from forismatic import *
 
-# токен бота
 from configure import config
 
 bot = telebot.TeleBot(config["token"])
 
-# Сорри, что прям все коментирую, а вдруг тебе непонтяно будет?~
-# All default messages
+week_days = {
+    0: '1_Monday',
+    1: '2_Tuesday',
+    2: '3_Wednesday',
+    3: '4_Thursday',
+    4: '5_Friday',
+    5: '6_Saturday',
+    6: 'now_sunday'
+}
+
+lessons = {
+    9: 'lesson_1',
+    10: 'lesson_2',
+    11: 'lesson_3',
+    12: 'lesson_4',
+    13: 'lesson_5',
+    14: 'lesson_6',
+    15: 'lesson_7',
+    16: 'lesson_8'
+}
+
+timetable = {
+    9: '9.0 9.45',
+    10: '10.0 10.45',
+    11: '11.05 11.50',
+    12: '12.05 12.50',
+    13: '13.10 13.55',
+    14: '14.10 14.50',
+    15: '15.05 15.10',
+    16: '16.00 16.45'
+}
+
+
 class Messages:
 	start_message =\
 """
@@ -83,10 +115,9 @@ class Messages:
 """
 
 
-# Make our KeyBoards
 class Keyboards:
 
-	# Main KeyBoard. There we take a conversation with our bot
+	# Main
 	def make_reply_keyboard():
 		reply_keyboard = telebot.types.ReplyKeyboardMarkup()
 		
@@ -105,6 +136,7 @@ class Keyboards:
 		reply_keyboard.row(homework, feature)
 
 		return reply_keyboard
+	
 
 	def make_start_keyboard():
 		reply_keyboard = telebot.types.ReplyKeyboardMarkup()
@@ -112,10 +144,9 @@ class Keyboards:
 
 		reply_keyboard.add(sign_up)
 		return reply_keyboard
-		
-	def make_schedule_keyboard():
+	
 
-		# Future board of schedule
+	def make_schedule_keyboard():
 		inline_keyboard = telebot.types.InlineKeyboardMarkup()
  
 		now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="next")
@@ -127,8 +158,6 @@ class Keyboards:
 		return inline_keyboard
 
 	def make_subjects_keyboard():
-
-		# lessons
 		reply_keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=3)
 
 		phisics = telebot.types.KeyboardButton(text="💡 Физика")
@@ -154,7 +183,6 @@ class Keyboards:
 		return reply_keyboard
 
 
-	# create board. Now we have an access to them through class "Keyboards"
 	schedule_keyboard = make_schedule_keyboard()
 	subject_keyboard = make_subjects_keyboard()
 	start_keyboard = make_start_keyboard()
@@ -162,8 +190,11 @@ class Keyboards:
 
 
 class Features_funcs:
+	username = None
+	userclass = None
+	userlogin = None
+	userpass = None
 
-	# variables we need to login
 	sign_up = False
 	sign_up_passed = False
 	class_passed = False
@@ -171,13 +202,10 @@ class Features_funcs:
 
 	first_time = True
 
-	"""Just sugar: we need this variables cause 
-	if we don't, user always (if login or pass isn't right)
-	will see this message: "Неправильный..."""
 	mistake_1 = False
 	mistake_2 = False
 
-	# Randow wise
+
 	def make_quote():
 		max_len = 150
 		primary_quote = forismatic.ForismaticPy()
@@ -191,7 +219,7 @@ class Features_funcs:
 
 		return full_quote
 
-	# Check
+
 	def check_class_correct(message):
 		lengh = len(message.text)
 		text = message.text
@@ -200,39 +228,59 @@ class Features_funcs:
 			return re.fullmatch(r"[\d^0][А-Га-г]", text) or re.fullmatch(r"1[01][А-Га-г]", text)
 		return False
 	
-	# mail + pass validation
+
 	def login_valid(login):
 		return re.fullmatch(r".+@.+\..+", login)
 
 
-# All Handlers here/
+	def now_schedule(userclass):
+		clas = userclass
+		con = sqlite3.connect('timetable.db')
+		cur = con.cursor()
+
+		full_time = time.localtime(time.time())
+		hours = full_time.tm_hour
+		date = week_days[full_time.tm_wday]
+		minutes = full_time.tm_min
+
+		if minutes < 10:
+			minutes = '0' + str(minutes)
+		print(float(str(hours) + '.' + str(minutes)))
+		if date == 'now_sunday':
+			print(''.join(cur.execute(f'''SELECT now_sunday FROM all_class''').fetchone()))
+		elif hours in range(0, 9):
+			print(''.join(cur.execute(f'''SELECT wait_day FROM all_class''').fetchone()))
+		elif hours in range(17, 0):
+			print(''.join(cur.execute(f'''SELECT lesson_8 FROM all_class''').fetchone()))
+		elif float(str(hours) + '.' + str(minutes)) >= float(timetable[hours].split()[0]) and float(str(hours) + '.' + str(minutes)) <= float(timetable[hours].split()[1]):
+			now_lesson = cur.execute(f'''SELECT {lessons[hours]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
+			next_lesson = cur.execute(f'''SELECT {lessons[hours + 1]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
+			
+			message = f"""
+Ваш класс: {clas}
+Сейчас урок: {now_lesson[0][0].split()[0]}
+Следующий урок:{next_lesson[0][0].split()[0]}
+	"""
+		else:
+			message = ''.join(cur.execute(f'''SELECT wait_time FROM all_class''').fetchone())
+
+		return message
+
+
 class Handlers:
-
-	# bot deleting messages of these types
-	filters = [
-	"audio", "document",
-	"video", "video_note", "voice", "location",
-	"contact", "new_chat_members", "left_chat_member",
-	"new_chat_title", "new_chat_photo", "delete_chat_photo",
-	"group_chat_created", "supergroup_chat_created", "channel_chat_created",
-	"migrate_to_chat_id", "migrate_from_chat_id",
-	"pinned_message", "web_app_data",
-	]
-
-	# start command
 	@bot.message_handler(commands=["start"])
 	def start(message):
 		Features_funcs.first_time = True
 		Features_funcs.sign_up_passed = False
 		bot.send_message(message.chat.id, Messages.start_message, reply_markup=Keyboards.start_keyboard)
 
-	# Bot's buttons
+
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
 
-		# Пока что сдедано в виде alert (всплывающее окно)
+
 		if call == "next":
-			bot.send_message(call.message.chat.id, "Текущий урок:\nСледующий урок:")
+			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
 		elif call == "day":
 			bot.send_message(call.message.chat.id, "Расписание на сегодня:")
 		elif call == "week":
@@ -240,230 +288,125 @@ class Handlers:
 		
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
 
-	# text handlers
-	@bot.message_handler(content_types=["text"])
+
+	@bot.message_handler(func=lambda message: True)
 	def class_number(message):
-
-		# if chat id is private, we can use stickers
-		if message.chat.id == "private":
-			Handlers.filters.append("sticker")
-
-		# Below so many handlers
-		# There is reaction if we passed reg
-		if message.text == "📝 Расписание":
-
-			# if passed reg
+		if message.text is not None:
 			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, f"Доступные варианты:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
+				if message.text == "📝 Расписание":
+					bot.send_message(message.chat.id, f"Доступные варианты:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
 
-
-		elif message.text == "📕 Д/з":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "📚 Отметки":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "👨‍🎓 Итоговые отметки":
-			if Features_funcs.sign_up_passed:
+				elif message.text == "📕 Д/з":
 					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
+
+				elif message.text == "📚 Отметки":
+					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
+
+				elif message.text == "👨‍🎓 Итоговые отметки":
+					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
+
+
+				elif message.text == "🧐 Слово философа":
+					bot.send_message(message.chat.id, f"👴 Мудрость:\n\n{Features_funcs.make_quote()}")
+
+				elif message.text == "🗒 Мои команды":
+					bot.send_message(message.chat.id, Messages.my_commands)
+
+				elif message.text == "❓ Помощь":
+					bot.send_message(message.chat.id, Messages.help_info)
+
+
+				elif message.text == "💡 Физика":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🧮 Алгебра":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "📐 Геометрия":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "💻 Информ.":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🇷🇺 Русск. яз":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "📖 Лит-ра":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🇬🇧 Англ. яз":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🧬 Биология":
+					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "☣️ Химия":
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "📽 История":
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard
+
+				elif message.text == "👨‍👩‍👦 Общество":
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🏐 Физ-ра":
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+				elif message.text == "🧱 Проект":
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
 			else:
-				bot.delete_message(message.chat.id, message.message_id)
+				if message.chat.type == "private":
+					if message.text == "🆕 Регистрация":
+						if Features_funcs.first_time: # will: if user not in database
+							Features_funcs.sign_up = True
+							Features_funcs.sign_up_passed = False
+							Features_funcs.class_passed = False
+							Features_funcs.first_time = False
 
+							bot.send_message(message.chat.id, Messages.about_classformat, reply_markup=telebot.types.ReplyKeyboardRemove())
+						
+						else:
+							bot.delete_message(message.chat.id, message.message_id)
 
-		elif message.text == "🧐 Слово философа":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, f"👴 Мудрость:\n\n{Features_funcs.make_quote()}")
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
+					elif not Features_funcs.class_passed and Features_funcs.sign_up:
+						if Features_funcs.check_class_correct(message):
+							Features_funcs.userсlass = message.text
 
+							Features_funcs.class_passed = True
+							bot.send_message(message.chat.id, Messages.about_loginformat)
+			
+						else:
+							bot.delete_message(message.chat.id, message.message_id)
 
-		elif message.text == "🗒 Мои команды":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, Messages.my_commands)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
+					elif Features_funcs.class_passed and not Features_funcs.sign_up_passed:
+						if len(message.text.split()) == 2:
+							login, password = message.text.split()
 
+							if Features_funcs.login_valid(login):
+								Features_funcs.userlogin = login
+								Features_funcs.userpass = password
 
-		elif message.text == "❓ Помощь":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, Messages.help_info)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "💡 Физика":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🧮 Алгебра":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "📐 Геометрия":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "💻 Информ.":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🇷🇺 Русск. яз":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "📖 Лит-ра":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🇬🇧 Англ. яз":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🧬 Биология":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "☣️ Химия":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "📽 История":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "👨‍👩‍👦 Общество":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🏐 Физ-ра":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		elif message.text == "🧱 Проект":
-			if Features_funcs.sign_up_passed:
-				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-			else:
-				bot.delete_message(message.chat.id, message.message_id)
-
-
-		# reg process
-		# remove this?
-		elif message.chat.type == "private":
-			if message.text == "🆕 Регистрация":
-
-				# flags
-				if Features_funcs.first_time:
+								Features_funcs.sign_up_passed = True
+								bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.reply_keyboard)
+							
+							else:
+								if not Features_funcs.mistake_2:
+									bot.send_message(message.chat.id, "Логин введен неверно!")
+									Features_funcs.mistake_2 = True
+								else:
+									bot.delete_message(message.chat.id, message.message_id)
+						
+						else:
+							bot.delete_message(message.chat.id, message.message_id)
 					
-					# Прошли первый этап
-					Features_funcs.sign_up = True
-
-					# Прошли всю регистрацию
-					Features_funcs.sign_up_passed = False
-
-					# Прошли второй этап (класс)
-					Features_funcs.class_passed = False
-
-					# Проходим регитсрацию впервые
-					Features_funcs.first_time = False
-
-					# send class info
-					bot.send_message(message.chat.id, Messages.about_classformat, reply_markup=telebot.types.ReplyKeyboardRemove())
-				else:
-					# delete user message
-					bot.delete_message(message.chat.id, message.message_id)
-
-			# Если прошли не прошли второй этап (класс) и прошли первый этап (нажалли кнопку)
-			elif not Features_funcs.class_passed and Features_funcs.sign_up:
-
-				# Если ввели все правильно
-				if Features_funcs.check_class_correct(message):
-					Features_funcs.class_passed = True
-
-					bot.send_message(message.chat.id, Messages.about_loginformat)
-				else:
-					bot.delete_message(message.chat.id, message.message_id)
-
-			# Если прошли второй этап и не прошли всю регистрацию
-			elif Features_funcs.class_passed and not Features_funcs.sign_up_passed:
-				# Если сообщение соотвествует формату "login Pass"
-				if len(message.text.split()) == 2:
-
-					# запишем в бд?
-					login, password = message.text.split()
-
-					# если формат правильный
-					if Features_funcs.login_valid(login):
-						Features_funcs.sign_up_passed = True
-						bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.reply_keyboard)
 					else:
-						# если пользователь впервые ввел что-то неправильно
-						# то бот отвечает. Если не впервые, то просто удаляет сообщение и ничего не пишет
 						if not Features_funcs.mistake_2:
-							bot.send_message(message.chat.id, "Логин введен неверно!")
+							bot.send_message(message.chat.id, "Неправильный формат!")
 							Features_funcs.mistake_2 = True
 						else:
 							bot.delete_message(message.chat.id, message.message_id)
-				else:
-					bot.delete_message(message.chat.id, message.message_id)
-			else:
-				# то же самое, что и mistake_1, только на втором этапе регистрации
-				if not Features_funcs.mistake_2:
-					bot.send_message(message.chat.id, "Неправильный формат!")
-					Features_funcs.mistake_2 = True
-				else:
-					bot.delete_message(message.chat.id, message.message_id)
-	
-	# удаляем сообщения, попавшие в фильтры
-	@bot.message_handler(content_types=filters)
-	def delete_message(message):
-		bot.delete_message(message.chat.id, message.message_id)
 
-# запускаем бота
+
 if __name__ == "__main__":
 	bot.infinity_polling()
