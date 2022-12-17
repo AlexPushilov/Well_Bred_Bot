@@ -9,6 +9,7 @@ from configure import config
 
 bot = telebot.TeleBot(config["token"])
 
+"""
 week_days = {
     0: '1_Monday',
     1: '2_Tuesday',
@@ -40,7 +41,7 @@ timetable = {
     15: '15.05 15.10',
     16: '16.00 16.45'
 }
-
+"""
 
 class Messages:
 	start_message =\
@@ -232,7 +233,7 @@ class Features_funcs:
 	def login_valid(login):
 		return re.fullmatch(r".+@.+\..+", login)
 
-
+"""
 	def now_schedule(userclass):
 		clas = userclass
 		con = sqlite3.connect('timetable.db')
@@ -256,16 +257,16 @@ class Features_funcs:
 			now_lesson = cur.execute(f'''SELECT {lessons[hours]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
 			next_lesson = cur.execute(f'''SELECT {lessons[hours + 1]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
 			
-			message = f"""
+			message = f
 Ваш класс: {clas}
 Сейчас урок: {now_lesson[0][0].split()[0]}
 Следующий урок:{next_lesson[0][0].split()[0]}
-	"""
+	
 		else:
 			message = ''.join(cur.execute(f'''SELECT wait_time FROM all_class''').fetchone())
 
 		return message
-
+"""
 
 class Handlers:
 	@bot.message_handler(commands=["start"])
@@ -344,7 +345,7 @@ class Handlers:
 						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
 				elif message.text == "📽 История":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard
+						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
 				elif message.text == "👨‍👩‍👦 Общество":
 						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
