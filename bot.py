@@ -269,6 +269,14 @@ class Features_funcs:
 """
 
 class Handlers:
+	filters = [
+	"audio", "document", "photo", "sticker", "video", "video_note", "voice", 
+	"location", "contact", "new_chat_members", "left_chat_member", "new_chat_title",
+	"new_chat_photo", "delete_chat_photo", "group_chat_created", "supergroup_chat_created", 
+	"channel_chat_created", "migrate_to_chat_id", "migrate_from_chat_id", 
+	"pinned_message", "web_app_data", "sticker"
+	]
+
 	@bot.message_handler(commands=["start"])
 	def start(message):
 		Features_funcs.first_time = True
@@ -278,7 +286,6 @@ class Handlers:
 
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
-
 
 		if call == "next":
 			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
@@ -290,124 +297,126 @@ class Handlers:
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
 
 
-	@bot.message_handler(func=lambda message: True)
+	@bot.message_handler(content_types=["text"])
 	def class_number(message):
-		if message.text is not None:
-			if Features_funcs.sign_up_passed:
-				if message.text == "📝 Расписание":
-					bot.send_message(message.chat.id, f"Доступные варианты:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
+		if Features_funcs.sign_up_passed:
+			if message.text == "📝 Расписание":
+				bot.send_message(message.chat.id, f"Доступные варианты:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
 
-				elif message.text == "📕 Д/з":
-					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
+			elif message.text == "📕 Д/з":
+				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
 
-				elif message.text == "📚 Отметки":
-					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
+			elif message.text == "📚 Отметки":
+				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
 
-				elif message.text == "👨‍🎓 Итоговые отметки":
-					bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
-
-
-				elif message.text == "🧐 Слово философа":
-					bot.send_message(message.chat.id, f"👴 Мудрость:\n\n{Features_funcs.make_quote()}")
-
-				elif message.text == "🗒 Мои команды":
-					bot.send_message(message.chat.id, Messages.my_commands)
-
-				elif message.text == "❓ Помощь":
-					bot.send_message(message.chat.id, Messages.help_info)
+			elif message.text == "👨‍🎓 Итоговые отметки":
+				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
 
 
-				elif message.text == "💡 Физика":
+			elif message.text == "🧐 Слово философа":
+				bot.send_message(message.chat.id, f"👴 Мудрость:\n\n{Features_funcs.make_quote()}")
+
+			elif message.text == "🗒 Мои команды":
+				bot.send_message(message.chat.id, Messages.my_commands)
+
+			elif message.text == "❓ Помощь":
+				bot.send_message(message.chat.id, Messages.help_info)
+
+
+			elif message.text == "💡 Физика":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "🧮 Алгебра":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "📐 Геометрия":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "💻 Информ.":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "🇷🇺 Русск. яз":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "📖 Лит-ра":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "🇬🇧 Англ. яз":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "🧬 Биология":
+				bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+
+			elif message.text == "☣️ Химия":
 					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
-				elif message.text == "🧮 Алгебра":
+			elif message.text == "📽 История":
 					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
-				elif message.text == "📐 Геометрия":
+			elif message.text == "👨‍👩‍👦 Общество":
 					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
-				elif message.text == "💻 Информ.":
+			elif message.text == "🏐 Физ-ра":
 					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
-				elif message.text == "🇷🇺 Русск. яз":
+			elif message.text == "🧱 Проект":
 					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
 
-				elif message.text == "📖 Лит-ра":
-					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
+		else:
+			if message.chat.type == "private":
+				if message.text == "🆕 Регистрация":
+					if Features_funcs.first_time: # will: if user not in database
+						Features_funcs.sign_up = True
+						Features_funcs.sign_up_passed = False
+						Features_funcs.class_passed = False
+						Features_funcs.first_time = False
 
-				elif message.text == "🇬🇧 Англ. яз":
-					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "🧬 Биология":
-					bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "☣️ Химия":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "📽 История":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "👨‍👩‍👦 Общество":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "🏐 Физ-ра":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-				elif message.text == "🧱 Проект":
-						bot.send_message(message.chat.id, "Скоро!", reply_markup=Keyboards.reply_keyboard)
-
-			else:
-				if message.chat.type == "private":
-					if message.text == "🆕 Регистрация":
-						if Features_funcs.first_time: # will: if user not in database
-							Features_funcs.sign_up = True
-							Features_funcs.sign_up_passed = False
-							Features_funcs.class_passed = False
-							Features_funcs.first_time = False
-
-							bot.send_message(message.chat.id, Messages.about_classformat, reply_markup=telebot.types.ReplyKeyboardRemove())
-						
-						else:
-							bot.delete_message(message.chat.id, message.message_id)
-
-					elif not Features_funcs.class_passed and Features_funcs.sign_up:
-						if Features_funcs.check_class_correct(message):
-							Features_funcs.userсlass = message.text
-
-							Features_funcs.class_passed = True
-							bot.send_message(message.chat.id, Messages.about_loginformat)
-			
-						else:
-							bot.delete_message(message.chat.id, message.message_id)
-
-					elif Features_funcs.class_passed and not Features_funcs.sign_up_passed:
-						if len(message.text.split()) == 2:
-							login, password = message.text.split()
-
-							if Features_funcs.login_valid(login):
-								Features_funcs.userlogin = login
-								Features_funcs.userpass = password
-
-								Features_funcs.sign_up_passed = True
-								bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.reply_keyboard)
-							
-							else:
-								if not Features_funcs.mistake_2:
-									bot.send_message(message.chat.id, "Логин введен неверно!")
-									Features_funcs.mistake_2 = True
-								else:
-									bot.delete_message(message.chat.id, message.message_id)
-						
-						else:
-							bot.delete_message(message.chat.id, message.message_id)
+						bot.send_message(message.chat.id, Messages.about_classformat, reply_markup=telebot.types.ReplyKeyboardRemove())
 					
 					else:
-						if not Features_funcs.mistake_2:
-							bot.send_message(message.chat.id, "Неправильный формат!")
-							Features_funcs.mistake_2 = True
-						else:
-							bot.delete_message(message.chat.id, message.message_id)
+						bot.delete_message(message.chat.id, message.message_id)
 
+				elif not Features_funcs.class_passed and Features_funcs.sign_up:
+					if Features_funcs.check_class_correct(message):
+						Features_funcs.userсlass = message.text
+
+						Features_funcs.class_passed = True
+						bot.send_message(message.chat.id, Messages.about_loginformat)
+		
+					else:
+						bot.delete_message(message.chat.id, message.message_id)
+
+				elif Features_funcs.class_passed and not Features_funcs.sign_up_passed:
+					if len(message.text.split()) == 2:
+						login, password = message.text.split()
+
+						if Features_funcs.login_valid(login):
+							Features_funcs.userlogin = login
+							Features_funcs.userpass = password
+
+							Features_funcs.sign_up_passed = True
+							bot.send_message(message.chat.id, "Регистрация завершена!", reply_markup=Keyboards.reply_keyboard)
+						
+						else:
+							if not Features_funcs.mistake_2:
+								bot.send_message(message.chat.id, "Логин введен неверно!")
+								Features_funcs.mistake_2 = True
+							else:
+								bot.delete_message(message.chat.id, message.message_id)
+					
+					else:
+						bot.delete_message(message.chat.id, message.message_id)
+				
+				else:
+					if not Features_funcs.mistake_2:
+						bot.send_message(message.chat.id, "Неправильный формат!")
+						Features_funcs.mistake_2 = True
+					else:
+						bot.delete_message(message.chat.id, message.message_id)
+	
+	@bot.message_handler(content_types=filters)
+	def del_messages(message):
+		bot.delete_message(message.chat.id, message.message_id)
 
 if __name__ == "__main__":
 	bot.infinity_polling()
