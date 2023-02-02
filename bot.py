@@ -317,7 +317,7 @@ class Handlers:
 	def class_number(message):
 		if Features_funcs.sign_up_passed:
 			if message.text == "📝 Расписание":
-				bot.send_message(message.chat.id, f"Доступные варианты:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
+				bot.send_message(message.chat.id, f"Выбирай:", reply_markup=Keyboards.schedule_keyboard)
 
 			elif message.text == "📕 Д/з":
 				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
