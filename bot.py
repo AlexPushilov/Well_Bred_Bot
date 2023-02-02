@@ -86,7 +86,7 @@ class Messages:
 
 	about_classformat =\
 """
-Введите класс в формате xy, где x - номер класса, y - буква класса
+Введите класс в формате x_y, где x - номер класса, y - буква класса, _ - пробел
 • Раскладка клавиатуры - русская.
 • Регистр не важен.
 """
@@ -223,11 +223,12 @@ class Features_funcs:
 
 
 	def check_class_correct(message):
-		lengh = len(message.text)
+		lengh = len(message.text.split())
 		text = message.text
 
-		if 2 <= lengh <= 3:
-			return re.fullmatch(r"[\d^0][А-Га-г]", text) or re.fullmatch(r"1[01][А-Га-г]", text)
+		if lengh == 2:
+			if userclass := text.split()[0].isdigit():
+				return 7 <= int(userclass) <= 11 and re.fullmatch(r"[А-Га-г]", text.split()[1]):
 		return False
 	
 
@@ -306,9 +307,9 @@ class Handlers:
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
 		"""
 
-		if call == "now":
-			bot.send_message(call.id, text=Features_funcs.now_schedule)
 		bot.answer_callback_query(call.id)
+		if call == "now":
+			bot.send_message(call.message.chat.id, text=Features_funcs.now_schedule())
 
 
 
