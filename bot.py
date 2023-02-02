@@ -304,10 +304,8 @@ class Handlers:
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
 		"""
 
-		if call == "day":
-			bot.send_message(call.message.chat.id, "Скоро!")
-		if call == "now":
-			bot.send_message(call.message.chat.id, "Скоро!")
+
+		if call.data == "now":
 			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
 
 
