@@ -304,7 +304,7 @@ class Handlers:
 
 		bot.answer_callback_query(call.id)
 		if call == "now":
-			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
+			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule(Features_funcs.userclass)}")
 
 
 
@@ -312,7 +312,7 @@ class Handlers:
 	def class_number(message):
 		if Features_funcs.sign_up_passed:
 			if message.text == "📝 Расписание":
-				bot.send_message(message.chat.id, f"Выбирайте {Messages.schedule}:", reply_markup=Keyboards.schedule_keyboard)
+				bot.send_message(message.chat.id, f"Выбирай:{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
 
 			elif message.text == "📕 Д/з":
 				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
