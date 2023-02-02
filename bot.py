@@ -9,7 +9,6 @@ from configure import config
 
 bot = telebot.TeleBot(config["token"])
 
-"""
 week_days = {
     0: '1_Monday',
     1: '2_Tuesday',
@@ -19,7 +18,6 @@ week_days = {
     5: '6_Saturday',
     6: 'now_sunday'
 }
-
 lessons = {
     9: 'lesson_1',
     10: 'lesson_2',
@@ -30,7 +28,6 @@ lessons = {
     15: 'lesson_7',
     16: 'lesson_8'
 }
-
 timetable = {
     9: '9.0 9.45',
     10: '10.0 10.45',
@@ -41,7 +38,7 @@ timetable = {
     15: '15.05 15.10',
     16: '16.00 16.45'
 }
-"""
+
 
 class Messages:
 	start_message =\
@@ -108,9 +105,10 @@ class Messages:
 
 	schedule = \
 """
-1️⃣ - Следующий урок
+1️⃣ - Текущий урок
+"""
 
-2️⃣ - Расписание на сегодня
+"""2️⃣ - Расписание на сегодня
 
 3️⃣ - Расписание на неделю
 """
@@ -150,11 +148,14 @@ class Keyboards:
 	def make_schedule_keyboard():
 		inline_keyboard = telebot.types.InlineKeyboardMarkup()
  
-		now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="next")
+		"""now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="next")
 		day = telebot.types.InlineKeyboardButton(text="2️⃣", callback_data="day")
 		week = telebot.types.InlineKeyboardButton(text="3️⃣", callback_data="week")
 
-		inline_keyboard.row(now, day, week)
+		inline_keyboard.row(now, day, week)"""
+
+		now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="now")
+		inline_keyboard.add(now)
 
 		return inline_keyboard
 
@@ -233,12 +234,11 @@ class Features_funcs:
 	def login_valid(login):
 		return re.fullmatch(r".+@.+\..+", login)
 
-"""
+
 	def now_schedule(userclass):
 		clas = userclass
 		con = sqlite3.connect('timetable.db')
 		cur = con.cursor()
-
 		full_time = time.localtime(time.time())
 		hours = full_time.tm_hour
 		date = week_days[full_time.tm_wday]
@@ -246,27 +246,33 @@ class Features_funcs:
 
 		if minutes < 10:
 			minutes = '0' + str(minutes)
-		print(float(str(hours) + '.' + str(minutes)))
+
 		if date == 'now_sunday':
-			print(''.join(cur.execute(f'''SELECT now_sunday FROM all_class''').fetchone()))
+			return ''.join(cur.execute(f'''SELECT now_sunday FROM all_class''').fetchone())
+
 		elif hours in range(0, 9):
-			print(''.join(cur.execute(f'''SELECT wait_day FROM all_class''').fetchone()))
-		elif hours in range(17, 0):
-			print(''.join(cur.execute(f'''SELECT lesson_8 FROM all_class''').fetchone()))
+			return ''.join(cur.execute(f'''SELECT wait_day FROM all_class''').fetchone())
+
+		elif hours in range(17, 24):
+			return ''.join(cur.execute(f'''SELECT lesson_8 FROM all_class''').fetchone())
+
 		elif float(str(hours) + '.' + str(minutes)) >= float(timetable[hours].split()[0]) and float(str(hours) + '.' + str(minutes)) <= float(timetable[hours].split()[1]):
 			now_lesson = cur.execute(f'''SELECT {lessons[hours]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
 			next_lesson = cur.execute(f'''SELECT {lessons[hours + 1]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
 			
-			message = f
-Ваш класс: {clas}
-Сейчас урок: {now_lesson[0][0].split()[0]}
-Следующий урок:{next_lesson[0][0].split()[0]}
-	
-		else:
-			message = ''.join(cur.execute(f'''SELECT wait_time FROM all_class''').fetchone())
+			a = f'Ваш класс: {clas}'
+			b = f'Сейчас урок: {now_lesson[0][0]}'
+			c = f'Следующий урок: {next_lesson[0][0]}'
+			return "\n".join([a, b, c])
 
-		return message
-"""
+		else:
+			a = ''.join(cur.execute(f'''SELECT wait_time FROM all_class''').fetchone())
+			next_lesson = cur.execute(f'''SELECT {lessons[hours]} FROM all_class WHERE number_of_class = "{clas}" AND Day = "{date}"''').fetchall()
+			b = f'Следующий урок: {next_lesson[0][0]}'
+
+			return "\n".join([a, b])
+
+
 
 class Handlers:
 	filters = [
@@ -287,7 +293,10 @@ class Handlers:
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
 
-		if call == "next":
+
+
+		"""
+		if call == "now":
 			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
 		elif call == "day":
 			bot.send_message(call.message.chat.id, "Расписание на сегодня:")
@@ -295,6 +304,11 @@ class Handlers:
 			bot.send_message(call.message.chat.id, "Расписание на неделю:")
 		
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
+		"""
+
+		if call == "now":
+			bot.send_message(call.id, text=Features_funcs.now_schedule)
+
 
 
 	@bot.message_handler(content_types=["text"])
