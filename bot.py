@@ -103,12 +103,12 @@ class Messages:
 "Пока Вы не зарегистрируетесь, доступ к функциям закрыт."
 """
 
-	schedule = \
 """
-1️⃣ - Текущий урок
-"""
+schedule = \
 
-"""2️⃣ - Расписание на сегодня
+1️⃣ - Текущий урок
+
+2️⃣ - Расписание на сегодня
 
 3️⃣ - Расписание на неделю
 """
@@ -154,7 +154,7 @@ class Keyboards:
 
 		inline_keyboard.row(now, day, week)"""
 
-		now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="now")
+		now = telebot.types.InlineKeyboardButton(text="Текущий урок", callback_data="now")
 		inline_keyboard.add(now)
 
 		return inline_keyboard
