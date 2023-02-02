@@ -103,9 +103,9 @@ class Messages:
 "Пока Вы не зарегистрируетесь, доступ к функциям закрыт."
 """
 
-"""
-schedule = \
 
+	schedule = \
+"""
 1️⃣ - Текущий урок
 
 2️⃣ - Расписание на сегодня
@@ -148,15 +148,13 @@ class Keyboards:
 	def make_schedule_keyboard():
 		inline_keyboard = telebot.types.InlineKeyboardMarkup()
  
-		"""now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="next")
+		now = telebot.types.InlineKeyboardButton(text="1️⃣", callback_data="now")
 		day = telebot.types.InlineKeyboardButton(text="2️⃣", callback_data="day")
 		week = telebot.types.InlineKeyboardButton(text="3️⃣", callback_data="week")
 
-		inline_keyboard.row(now, day, week)"""
+		inline_keyboard.row(now, day, week)
 
-		now = telebot.types.InlineKeyboardButton(text="Текущий урок", callback_data="now")
-		inline_keyboard.add(now)
-
+	
 		return inline_keyboard
 
 	def make_subjects_keyboard():
@@ -293,9 +291,6 @@ class Handlers:
 
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
-
-
-
 		"""
 		if call == "now":
 			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
@@ -309,7 +304,7 @@ class Handlers:
 
 		bot.answer_callback_query(call.id)
 		if call == "now":
-			bot.send_message(call.message.chat.id, text=Features_funcs.now_schedule())
+			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
 
 
 
@@ -317,7 +312,7 @@ class Handlers:
 	def class_number(message):
 		if Features_funcs.sign_up_passed:
 			if message.text == "📝 Расписание":
-				bot.send_message(message.chat.id, f"Выбирай:", reply_markup=Keyboards.schedule_keyboard)
+				bot.send_message(message.chat.id, f"Выбирайте {Messages.schedule}:", reply_markup=Keyboards.schedule_keyboard)
 
 			elif message.text == "📕 Д/з":
 				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
