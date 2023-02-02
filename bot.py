@@ -304,6 +304,7 @@ class Handlers:
 
 		bot.answer_callback_query(call.id)
 		if call == "now":
+			bot.send_message(call.message.chat.id, "Скоро!")
 			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule(Features_funcs.userсlass)}")
 
 
