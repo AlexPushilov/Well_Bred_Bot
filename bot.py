@@ -234,8 +234,8 @@ class Features_funcs:
 		return re.fullmatch(r".+@.+\..+", login)
 
 
-	def now_schedule(userclass):
-		clas = userclass
+	def now_schedule():
+		clas = Features_funcs.userclass
 		con = sqlite3.connect('timetable.db')
 		cur = con.cursor()
 		full_time = time.localtime(time.time())
@@ -291,6 +291,8 @@ class Handlers:
 
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
+		bot.answer_callback_query(callback_query_id=call.id)
+
 		"""
 		if call == "now":
 			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
@@ -302,10 +304,11 @@ class Handlers:
 		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
 		"""
 
-		bot.answer_callback_query(call.id)
+		if call == "day":
+			bot.send_message(call.message.chat.id, "Скоро!")
 		if call == "now":
 			bot.send_message(call.message.chat.id, "Скоро!")
-			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule(Features_funcs.userсlass)}")
+			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
 
 
 
@@ -313,7 +316,7 @@ class Handlers:
 	def class_number(message):
 		if Features_funcs.sign_up_passed:
 			if message.text == "📝 Расписание":
-				bot.send_message(message.chat.id, f"Выбирай:{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
+				bot.send_message(message.chat.id, f"Выбирай:\n{Messages.schedule}", reply_markup=Keyboards.schedule_keyboard)
 
 			elif message.text == "📕 Д/з":
 				bot.send_message(message.chat.id, "Выберите предмет:", reply_markup=Keyboards.subject_keyboard)
