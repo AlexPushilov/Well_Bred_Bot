@@ -227,8 +227,8 @@ class Features_funcs:
 		text = message.text
 
 		if lengh == 2:
-			if userclass := text.split()[0].isdigit():
-				return 7 <= int(userclass) <= 11 and re.fullmatch(r"[А-Га-г]", text.split()[1])
+			if text.split()[0].isdigit():
+				return 7 <= int(text.split()[0]) <= 11 and re.fullmatch(r"[А-Га-г]", text.split()[1])
 		return False
 	
 
