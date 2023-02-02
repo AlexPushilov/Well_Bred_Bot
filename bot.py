@@ -228,7 +228,7 @@ class Features_funcs:
 
 		if lengh == 2:
 			if userclass := text.split()[0].isdigit():
-				return 7 <= int(userclass) <= 11 and re.fullmatch(r"[А-Га-г]", text.split()[1]):
+				return 7 <= int(userclass) <= 11 and re.fullmatch(r"[А-Га-г]", text.split()[1])
 		return False
 	
 
