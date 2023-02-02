@@ -138,7 +138,7 @@ class Keyboards:
 	
 
 	def make_start_keyboard():
-		reply_keyboard = telebot.types.ReplyKeyboardMarkup()
+		reply_keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 		sign_up = telebot.types.KeyboardButton(text="🆕 Регистрация")
 
 		reply_keyboard.add(sign_up)
@@ -153,7 +153,6 @@ class Keyboards:
 		week = telebot.types.InlineKeyboardButton(text="3️⃣", callback_data="week")
 
 		inline_keyboard.row(now, day, week)
-
 	
 		return inline_keyboard
 
@@ -291,22 +290,11 @@ class Handlers:
 
 	@bot.callback_query_handler(func=lambda call: True)
 	def process_callback_schedule(call):
-		bot.answer_callback_query(callback_query_id=call.id)
-
-		"""
-		if call == "now":
-			bot.send_message(call.message.chat.id, Features_funcs.now_schedule(Features_funcs.userclass))
-		elif call == "day":
-			bot.send_message(call.message.chat.id, "Расписание на сегодня:")
-		elif call == "week":
-			bot.send_message(call.message.chat.id, "Расписание на неделю:")
-		
-		bot.answer_callback_query(call.id, text="Дорогой пользователь, бот Олег находится на стадии разработки!", show_alert=True)
-		"""
-
+		bot.answer_callback_query(call.id)
 
 		if call.data == "now":
-			bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
+			bot.send_message(call.message.chat.id, "Привет")
+			#bot.send_message(call.message.chat.id, f"{Features_funcs.now_schedule()}")
 
 
 
